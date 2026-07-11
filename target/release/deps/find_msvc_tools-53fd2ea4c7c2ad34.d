@@ -1,0 +1,9 @@
+/home/adm_mbt_sduncan/git/jmc/v4/workspace/projects/dev2dot-solutions/main-site-development/repos/ingest-parser/target/release/deps/libfind_msvc_tools-53fd2ea4c7c2ad34.rmeta: /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/lib.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/find_tools.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/tool.rs
+
+/home/adm_mbt_sduncan/git/jmc/v4/workspace/projects/dev2dot-solutions/main-site-development/repos/ingest-parser/target/release/deps/libfind_msvc_tools-53fd2ea4c7c2ad34.rlib: /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/lib.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/find_tools.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/tool.rs
+
+/home/adm_mbt_sduncan/git/jmc/v4/workspace/projects/dev2dot-solutions/main-site-development/repos/ingest-parser/target/release/deps/find_msvc_tools-53fd2ea4c7c2ad34.d: /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/lib.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/find_tools.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/tool.rs
+
+/home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/lib.rs:
+/home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/find_tools.rs:
+/home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/find-msvc-tools-0.1.9/src/tool.rs:

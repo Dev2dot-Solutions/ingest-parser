@@ -1,0 +1,28 @@
+[package]
+name = "ingest-parser"
+version = "0.1.0"
+edition = "2021"
+description = "High-performance tree-sitter parse engine for dev2.solutions code ingestion. Accepts file paths on stdin, outputs structured JSON on stdout."
+
+[dependencies]
+# Tree-sitter core
+tree-sitter = "0.24"
+streaming-iterator = "0.1"
+
+# Language grammars
+tree-sitter-typescript = "0.23"
+tree-sitter-javascript = "0.23"
+tree-sitter-go = "0.23"
+tree-sitter-css = "0.23"
+tree-sitter-html = "0.23"
+
+# Parallel processing
+rayon = "=1.10.0"
+rayon-core = "=1.12.1"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+anyhow = "1"
