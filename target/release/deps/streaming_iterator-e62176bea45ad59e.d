@@ -1,9 +1,0 @@
-/home/adm_mbt_sduncan/git/jmc/v4/workspace/projects/dev2dot-solutions/main-site-development/repos/ingest-parser/target/release/deps/libstreaming_iterator-e62176bea45ad59e.rmeta: /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/lib.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/slice.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/sources.rs
-
-/home/adm_mbt_sduncan/git/jmc/v4/workspace/projects/dev2dot-solutions/main-site-development/repos/ingest-parser/target/release/deps/libstreaming_iterator-e62176bea45ad59e.rlib: /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/lib.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/slice.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/sources.rs
-
-/home/adm_mbt_sduncan/git/jmc/v4/workspace/projects/dev2dot-solutions/main-site-development/repos/ingest-parser/target/release/deps/streaming_iterator-e62176bea45ad59e.d: /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/lib.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/slice.rs /home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/sources.rs
-
-/home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/lib.rs:
-/home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/slice.rs:
-/home/adm_mbt_sduncan/.cargo/registry/src/index.crates.io-6f17d22bba15001f/streaming-iterator-0.1.9/src/sources.rs:
