@@ -1,0 +1,33 @@
+services:
+  ingest-parser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dev2-solutions/ingest-parser:latest
+    profiles:
+      - tools
+    networks:
+      - dev2-network
+    volumes:
+      - dev2-workspaces:/workspaces:ro
+    environment:
+      - RAYON_NUM_THREADS=${RAYON_NUM_THREADS:-4}
+    # This is a CLI tool — it runs on demand via:
+    #   docker compose run --rm ingest-parser < filelist.txt > results.json
+    # It does NOT run as a daemon (profiles prevents auto-start on "up").
+    #
+    # To test locally from the repo directory:
+    #   find src/ -name "*.rs" | docker compose run --rm ingest-parser
+    #
+    # Other services (dev2-knowledge) call it as a subprocess, or via:
+    #   docker compose --profile tools run --rm ingest-parser
+
+volumes:
+  dev2-workspaces:
+    external: true
+    name: dev2-workspaces
+
+networks:
+  dev2-network:
+    external: true
+    name: dev2-network
