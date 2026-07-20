@@ -25,6 +25,7 @@ use tree_sitter::{Language, Parser, Query, QueryCursor};
 // ---------------------------------------------------------------------------
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct ParseResult {
     path: String,
     functions: Vec<Function>,
@@ -36,6 +37,7 @@ struct ParseResult {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct Function {
     name: String,
     signature: String,
@@ -45,6 +47,7 @@ struct Function {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct Class {
     name: String,
     parent_class: Option<String>,
@@ -52,12 +55,14 @@ struct Class {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct Import {
     source_entity: String,
     target_entity: String,
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct FunctionCall {
     caller_name: String,
     callee_name: String,
@@ -73,6 +78,9 @@ enum LangId {
     Tsx,
     JavaScript,
     Go,
+    Kotlin,
+    Rust,
+    Vue,
     Html,
     Css,
 }
@@ -87,6 +95,9 @@ fn detect_language(path: &str) -> Option<LangId> {
         "tsx" => Some(LangId::Tsx),
         "js" | "jsx" | "mjs" | "cjs" => Some(LangId::JavaScript),
         "go" => Some(LangId::Go),
+        "kt" | "kts" => Some(LangId::Kotlin),
+        "rs" => Some(LangId::Rust),
+        "vue" => Some(LangId::Vue),
         "html" | "htm" => Some(LangId::Html),
         "css" | "scss" => Some(LangId::Css),
         _ => None,
@@ -177,7 +188,7 @@ fn init_grammars() -> Result<HashMap<LangId, Grammar>> {
         )?),
         classes: Some(Query::new(
             &tree_sitter_javascript::LANGUAGE.into(),
-            "(class_declaration name: (type_identifier) @name) @class",
+            "(class_declaration name: (identifier) @name) @class",
         )?),
         imports: Some(Query::new(
             &tree_sitter_javascript::LANGUAGE.into(),
@@ -190,9 +201,27 @@ fn init_grammars() -> Result<HashMap<LangId, Grammar>> {
         )?),
     })?;
 
-    // Kotlin — removed: tree-sitter-kotlin 0.3.x depends on tree-sitter 0.20 API
-    // causing version conflicts with the 0.24 API used by other grammars.
-    // Re-add when the kotlin crate updates to the modern tree-sitter API.
+    // Kotlin (via tree-sitter-kotlin-ng, the tree-sitter 0.24 API-compatible fork)
+    make(LangId::Kotlin, tree_sitter_kotlin_ng::LANGUAGE.into(), QuerySet {
+        functions: Some(Query::new(
+            &tree_sitter_kotlin_ng::LANGUAGE.into(),
+            "(function_declaration name: (identifier) @name) @func",
+        )?),
+        classes: Some(Query::new(
+            &tree_sitter_kotlin_ng::LANGUAGE.into(),
+            "(class_declaration name: (identifier) @name) @class
+             (object_declaration name: (identifier) @name) @class",
+        )?),
+        imports: Some(Query::new(
+            &tree_sitter_kotlin_ng::LANGUAGE.into(),
+            "(import (identifier) @source) @import
+             (import (qualified_identifier) @source) @import",
+        )?),
+        calls: Some(Query::new(
+            &tree_sitter_kotlin_ng::LANGUAGE.into(),
+            "(call_expression (identifier) @callee) @call",
+        )?),
+    })?;
 
     // Go
     make(LangId::Go, tree_sitter_go::LANGUAGE.into(), QuerySet {
@@ -208,6 +237,31 @@ fn init_grammars() -> Result<HashMap<LangId, Grammar>> {
         calls: Some(Query::new(
             &tree_sitter_go::LANGUAGE.into(),
             "(call_expression function: (identifier) @callee) @call",
+        )?),
+    })?;
+
+    // Rust (tree-sitter-rust 0.24.0, exact-pinned for tree-sitter 0.24 API)
+    make(LangId::Rust, tree_sitter_rust::LANGUAGE.into(), QuerySet {
+        functions: Some(Query::new(
+            &tree_sitter_rust::LANGUAGE.into(),
+            "(function_item name: (identifier) @name) @func",
+        )?),
+        classes: Some(Query::new(
+            &tree_sitter_rust::LANGUAGE.into(),
+            "(struct_item name: (type_identifier) @name) @class
+             (enum_item name: (type_identifier) @name) @class
+             (trait_item name: (type_identifier) @name) @class",
+        )?),
+        imports: Some(Query::new(
+            &tree_sitter_rust::LANGUAGE.into(),
+            "(use_declaration argument: (scoped_identifier) @source) @import
+             (use_declaration argument: (identifier) @source) @import",
+        )?),
+        calls: Some(Query::new(
+            &tree_sitter_rust::LANGUAGE.into(),
+            "(call_expression function: (identifier) @callee) @call
+             (call_expression function: (scoped_identifier) @callee) @call
+             (call_expression function: (field_expression field: (field_identifier) @callee)) @method_call",
         )?),
     })?;
 
@@ -576,6 +630,36 @@ fn find_enclosing_function(node: tree_sitter::Node, source: &[u8]) -> Option<Str
     None
 }
 
+/// Extract the first <script> block from a Vue single-file component.
+/// Returns (block_content, language to parse with).
+/// Note: line numbers in the parse output are relative to the start of the
+/// script block, not the .vue file (v1 limitation).
+fn extract_vue_script(source: &str) -> Option<(String, LangId)> {
+    let lower = source.to_lowercase();
+    let tag_start = lower.find("<script")?;
+    let tag_end = lower[tag_start..].find('>')? + tag_start;
+    let attrs = &lower[tag_start..tag_end];
+
+    let lang = if attrs.contains("lang=\"tsx\"") || attrs.contains("lang='tsx'") {
+        LangId::Tsx
+    } else if attrs.contains("lang=\"ts\"") || attrs.contains("lang='ts'") {
+        LangId::TypeScript
+    } else {
+        LangId::JavaScript
+    };
+
+    let content_start = tag_end + 1;
+    let content_end = lower[content_start..].find("</script>")? + content_start;
+    if content_end <= content_start {
+        return None;
+    }
+    let content = source[content_start..content_end].to_string();
+    if content.trim().is_empty() {
+        return None;
+    }
+    Some((content, lang))
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -620,21 +704,6 @@ fn run() -> Result<()> {
                 }
             };
 
-            let grammar = match grammars.get(&lang_id) {
-                Some(g) => g,
-                None => {
-                    return ParseResult {
-                        path: path.clone(),
-                        functions: Vec::new(),
-                        classes: Vec::new(),
-                        imports: Vec::new(),
-                        calls: Vec::new(),
-                        error: Some(format!("grammar not loaded for {:?}", lang_id)),
-                        duration_us: 0,
-                    };
-                }
-            };
-
             let source = match std::fs::read_to_string(path) {
                 Ok(s) => s,
                 Err(e) => {
@@ -650,7 +719,44 @@ fn run() -> Result<()> {
                 }
             };
 
-            parse_file(path, &source, grammar)
+            // Vue SFCs: extract the <script> block and parse it with the
+            // TypeScript/TSX/JavaScript grammar indicated by the lang attribute.
+            let (parse_source, grammar_id) = if lang_id == LangId::Vue {
+                match extract_vue_script(&source) {
+                    Some((script, gid)) => (script, gid),
+                    None => {
+                        // Template/style-only component — nothing parseable
+                        return ParseResult {
+                            path: path.clone(),
+                            functions: Vec::new(),
+                            classes: Vec::new(),
+                            imports: Vec::new(),
+                            calls: Vec::new(),
+                            error: None,
+                            duration_us: 0,
+                        };
+                    }
+                }
+            } else {
+                (source, lang_id)
+            };
+
+            let grammar = match grammars.get(&grammar_id) {
+                Some(g) => g,
+                None => {
+                    return ParseResult {
+                        path: path.clone(),
+                        functions: Vec::new(),
+                        classes: Vec::new(),
+                        imports: Vec::new(),
+                        calls: Vec::new(),
+                        error: Some(format!("grammar not loaded for {:?}", grammar_id)),
+                        duration_us: 0,
+                    };
+                }
+            };
+
+            parse_file(path, &parse_source, grammar)
         })
         .collect();
 
